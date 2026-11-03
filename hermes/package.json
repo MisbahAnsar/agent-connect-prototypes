@@ -1,0 +1,31 @@
+{
+  "name": "hermes-near-intents-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hermes Agent executing policy-bound swaps through the NEAR Intents Agent API (Tidepool testnet by default, mainnet via baseUrl toggle)",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "provision": "tsx scripts/00_provision_grant.ts",
+    "recipe:1": "tsx recipes/01_swap_allowed.ts",
+    "recipe:2": "tsx recipes/02_blocked_limit.ts",
+    "recipe:3": "tsx recipes/03_blocked_asset.ts",
+    "test": "vitest run",
+    "test:api": "vitest run tests/api.e2e.test.ts",
+    "test:mcp": "vitest run tests/mcp.e2e.test.ts",
+    "test:hermes": "RUN_HERMES=1 vitest run tests/hermes.e2e.test.ts",
+    "sandbox:pull": "docker pull nousresearch/hermes-agent:latest",
+    "sandbox:chat": "bash bin/hermes-run"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0",
+    "zod": "^3.25.0"
+  }
+}

@@ -1,0 +1,17 @@
+# dependencies & build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# secrets & provisioned state — never commit
+.env
+.state/
+
+# Hermes profile: only the checked-in fixture files are tracked.
+# Everything else here is runtime state (sessions, logs, synced skills, …).
+profile/*
+!profile/config.yaml
+!profile/SOUL.md
+
+# OS
+.DS_Store

@@ -1,0 +1,52 @@
+name: hermes-e2e
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["hermes/**", ".github/workflows/hermes-e2e.yml"]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hermes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: hermes/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # Tiers 1+2 run against the live testnet Agent API (free). Tier 3
+      # (real Hermes + LLM) runs in the dispatch job below when the
+      # NEAR_AI_API_KEY secret is set.
+      - run: npm test
+        env:
+          RUN_HERMES: ${{ secrets.RUN_HERMES || '0' }}
+          NEAR_AI_API_KEY: ${{ secrets.NEAR_AI_API_KEY }}
+
+  tier3-hermes:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hermes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: hermes/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: docker pull nousresearch/hermes-agent:latest
+      - run: npx tsx scripts/00_provision_grant.ts
+      - run: npm run test:hermes
+        env:
+          NEAR_AI_API_KEY: ${{ secrets.NEAR_AI_API_KEY }}
+          HERMES_BACKEND: docker

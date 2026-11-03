@@ -1,0 +1,12 @@
+# dependencies & build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# secrets & provisioned state — never commit
+.env
+.state/
+profile/.env
+
+# OS
+.DS_Store

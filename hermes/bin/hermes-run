@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# Run the demo's Hermes headlessly against its isolated profile.
+#
+#   bin/hermes-run "Swap 5 USDC to WNEAR"
+#
+# Backends — HERMES_BACKEND=host|docker|auto (default auto):
+#   host   — a local `hermes` install runs with HERMES_HOME=profile/
+#   docker — the official nousresearch/hermes-agent image runs with the
+#            profile mounted at /opt/data. Only dist/ and node_modules/
+#            are mounted into the container, so the owner key (.state/)
+#            and the repo .env never enter the agent's filesystem.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+IMAGE="${HERMES_IMAGE:-nousresearch/hermes-agent:latest}"
+
+if [ ! -f "$ROOT/profile/.env" ]; then
+  echo "error: profile/.env is missing — run \`npm run provision\` first." >&2
+  exit 1
+fi
+
+backend="${HERMES_BACKEND:-auto}"
+case "$backend" in
+  auto)
+    # Docker-first: the official image is the demo's sanctioned sandbox and
+    # works even when a partial/broken host install shadows `hermes`.
+    if command -v docker >/dev/null 2>&1; then
+      backend="docker"
+    elif command -v hermes >/dev/null 2>&1; then
+      backend="host"
+    else
+      echo "error: no Hermes backend available." >&2
+      echo "  - install docker to run the official nousresearch/hermes-agent image" >&2
+      echo "  - or install hermes:  curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash" >&2
+      exit 127
+    fi
+    ;;
+esac
+
+if [ "$backend" = "docker" ]; then
+  command -v docker >/dev/null 2>&1 || { echo "error: docker not on PATH" >&2; exit 127; }
+  docker image inspect "$IMAGE" >/dev/null 2>&1 || docker pull "$IMAGE"
+  ENVFILE_ARGS=()
+  [ -f "$ROOT/.env" ] && ENVFILE_ARGS=(--env-file "$ROOT/.env")
+  # Only the built MCP server and its JS deps are visible to the agent —
+  # never .state/ (owner key) or the repo .env.
+  exec docker run --rm -i \
+    "${ENVFILE_ARGS[@]}" \
+    -v "$ROOT/profile:/opt/data" \
+    -v "$ROOT/dist:/workspace/hermes/dist:ro" \
+    -v "$ROOT/node_modules:/workspace/hermes/node_modules:ro" \
+    -e HERMES_DEMO_ROOT=/workspace/hermes \
+    -e HERMES_HOME=/opt/data \
+    -w /workspace/hermes \
+    "$IMAGE" \
+    chat --oneshot -q "$*"
+fi
+
+# host backend
+export HERMES_HOME="$ROOT/profile"
+export HERMES_DEMO_ROOT="$ROOT"
+
+# Surface repo-level secrets (NEAR_AI_API_KEY, …) to the hermes process.
+set -a
+[ -f "$ROOT/.env" ] && . "$ROOT/.env"
+set +a
+
+PROMPT="$*"
+exec hermes chat --oneshot -q "$PROMPT"

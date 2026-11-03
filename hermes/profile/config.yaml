@@ -1,0 +1,23 @@
+# Hermes profile for the NEAR Intents Agent API demo.
+# Used via HERMES_HOME=<this dir> (see bin/hermes-run). Secrets live in
+# profile/.env, written by `npm run provision` — never commit it.
+
+model:
+  # NEAR AI Cloud gateway (OpenAI-compatible, TEE-hosted inference).
+  default: "zai-org/GLM-5.1-FP8"
+  provider: "custom"
+  base_url: "https://cloud-api.near.ai/v1"
+  api_key: "${NEAR_AI_API_KEY}"
+
+mcp_servers:
+  agent_api:
+    # Built by `npm run build` — the in-repo MCP bridge to the Agent API.
+    command: "node"
+    args: ["${HERMES_DEMO_ROOT}/dist/mcp-server/index.js"]
+    env:
+      AGENT_API_URL: "${AGENT_API_URL}"
+      AGENT_API_KEY: "${AGENT_API_KEY}"
+      AGENT_GRANT_TOKEN: "${AGENT_GRANT_TOKEN}"
+      AGENT_ID: "${AGENT_ID}"
+    timeout: 180
+_config_version: 52
