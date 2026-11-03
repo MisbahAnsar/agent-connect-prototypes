@@ -1,0 +1,30 @@
+{
+  "name": "house-money-agent-api-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Trading use case for the NEAR Intents Agent API: deposit, run your strategy, repeat — with policy-enforced principal protection (House Money). Tidepool testnet by default, mainnet via toggle.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "provision": "tsx scripts/00_provision.ts",
+    "check": "tsx scripts/01_check.ts",
+    "recipe:1": "tsx recipes/01_trend_trade.ts",
+    "recipe:2": "tsx recipes/02_house_money.ts",
+    "recipe:3": "tsx recipes/03_my_strategy.ts",
+    "recipe:4": "tsx recipes/04_chaos.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@near-intents-agent-api/sdk": "^0.5.2",
+    "near-api-js": "^7.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
