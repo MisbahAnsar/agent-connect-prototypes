@@ -1,0 +1,25 @@
+name: house-money-ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["house-money/**", ".github/workflows/house-money-ci.yml"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: house-money
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: house-money/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      # unit + scenario harness only — all offline (fake network, policy-enforcing fake)
+      - run: npm test

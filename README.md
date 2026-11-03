@@ -1,4 +1,4 @@
-# agent-connect-prototypes
+# agent-api-prototypes
 
 Prototypes and experiments for the **NEAR Intents Agent API** — wallets that AI
 agents can use, bounded by human-signed policy.
@@ -8,18 +8,30 @@ Each directory is a self-contained prototype against the same contract:
 | Prototype | What it shows |
 |---|---|
 | [`hermes/`](./hermes) | **Hermes Agent** executing policy-bound swaps through the Agent API over MCP — owner signs policy + grant, the LLM agent only ever holds a scoped token, the API enforces the rules |
+| [`house-money/`](./house-money) | **House Money** trading use case — deposit → run your strategy → repeat, and the stake banks itself the moment gains cover it (exactly-once withdraw to a safe address under policy). Plug-in `Strategy` seam, offline scenario harness (64 tests), live chaos recipe |
 
 ## Setup
 
+Each prototype is self-contained:
+
 ```bash
+# Hermes — policy-bound swaps via an LLM agent over MCP
 cd hermes
 npm install
 npm run provision     # testnet: free key + agent wallet + grant + faucet
 npm run recipe:1      # run the demo
 npm test              # e2e tiers (API / MCP / full agent)
+
+# House Money — plug-in trading loop with principal protection
+cd house-money
+npm install
+npm run provision     # testnet: free key + agent + house-money policy + deposit address
+npm run recipe:1      # trend trading loop (2: + principal exit · 3: your strategy · 4: chaos probes)
+npm test              # unit + scenario harness (64 tests, offline)
 ```
 
-See [`hermes/README.md`](./hermes/README.md) for the full walkthrough.
+Full walkthroughs: [`hermes/README.md`](./hermes/README.md) ·
+[`house-money/README.md`](./house-money/README.md).
 
 ## Relevant links
 
