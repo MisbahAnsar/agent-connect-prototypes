@@ -1,0 +1,25 @@
+name: nearmerch-agent-pay-ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["nearmerch-agent-pay/**", ".github/workflows/nearmerch-agent-pay-ci.yml"]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: nearmerch-agent-pay
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: nearmerch-agent-pay/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      # offline only — fake nearmerch, fake Ping facilitator, fake Agent Connect MCP; no keys, no funds
+      - run: npm test

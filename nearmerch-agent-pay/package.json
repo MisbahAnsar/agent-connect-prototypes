@@ -1,0 +1,26 @@
+{
+  "name": "nearmerch-agent-pay",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An agent buys merch from nearmerch.com over x402 near-intents: Ping Agent Pay is the facilitator, Agent Connect (MCP) is the wallet that pays the deposit.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "check": "tsx scripts/01_check.ts",
+    "pay": "tsx recipes/01_buy_with_agent_connect.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "near-sign-verify": "^0.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@x402/core": "^2.24.0",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.0",
+    "vitest": "^3.2.0"
+  }
+}
